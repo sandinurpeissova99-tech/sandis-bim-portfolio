@@ -212,6 +212,10 @@ section{scroll-margin-top:64px}
 .val[data-step="4"] .stamp{opacity:1;transform:translate(-50%,0)}
 .val-cap{position:absolute;left:14px;bottom:12px;font-family:var(--mono);font-size:12px;color:var(--on-night-muted)}
 .val[data-step="4"] .val-cap{opacity:0}
+.cde{position:absolute;top:12px;right:12px;display:flex;gap:4px;font-size:11px}
+.cde span{padding:3px 8px;border-radius:999px;border:1px solid var(--night-line);color:var(--on-night-muted);transition:background-color 240ms ease,color 240ms ease,border-color 240ms ease}
+.cde span.on{background:#7fc0a8;border-color:#7fc0a8;color:#0f0f10}
+.steps b{color:var(--on-night);font-weight:500}
 .steps{list-style:none;margin:24px 0 0;padding:0;counter-reset:s}
 .steps button{display:grid;grid-template-columns:40px 1fr;gap:12px;width:100%;text-align:left;padding:16px 0;border-top:1px solid var(--night-line);color:var(--on-night-muted);transition:color 200ms ease}
 .steps li:last-child button{border-bottom:1px solid var(--night-line)}
@@ -495,30 +499,36 @@ dialog.show::backdrop{background:rgba(0,0,0,.45)}
 <section class="sec night" id="thesis" aria-labelledby="thesis-h">
   <div class="wrap thesis">
     <div>
-      <h2 id="thesis-h" class="rv">How a model gets approved</h2>
-      <p class="lead rv" style="--d:60ms">From my MSc thesis in Global BIM Management: a simulation-based project run with open BIM standards from the outset, using agile and scrum. As project BIM Coordinator I worked with the BIM Manager to develop the BEP and Exchange Information Requirements, then validated every model in four steps.</p>
+      <h2 id="thesis-h" class="rv">How a model is checked before it is shared</h2>
+      <p class="lead rv" style="--d:60ms">From my MSc thesis in Global BIM Management: a simulated project delivered to open BIM standards from the outset and run with agile and scrum. As project BIM Coordinator I worked with the BIM Manager on the BEP and EIR, and ran this validation workflow on every model before it left the work-in-progress state.</p>
       <ul class="methods rv" style="--d:120ms">
-        <li>EIR defined from the client perspective, passed through the project team to define the BEP</li>
-        <li>Level of Information Need used to control over-production of information</li>
-        <li>Trello Kanban for task tracking; Slack for communication</li>
+        <li>EIR written from the appointing party's perspective and expanded stage by stage; the BEP set out the delivery team's response</li>
+        <li>Level of Information Need defined for each deliverable, to stop over-production and catch missing information</li>
+        <li>Open BIM exchange: IFC for models, BCF for issues, Bimsync as the common data environment</li>
+        <li>Agile delivery: scrum sprints, Trello Kanban for tasks, Slack for communication</li>
       </ul>
+      <div class="rv" style="--d:160ms;display:flex;flex-wrap:wrap;gap:12px;margin-top:32px">
+        <button class="btn btn-ghost" type="button" data-view="26">See the QA/QC page</button>
+        <button class="btn btn-ghost" type="button" data-view="27">See the BEP page</button>
+      </div>
     </div>
     <div class="rv" style="--d:100ms">
       <div class="val" id="val" data-step="1" role="img" aria-label="Diagram of the current validation step">
+        <div class="cde mono" aria-hidden="true"><span data-s="wip">WIP</span><span data-s="shared">Shared</span><span data-s="pub">Published</span></div>
         <div class="cross"></div>
-        <div class="blk b1"><span class="lbl">ARC</span><span class="ok">checked</span></div>
-        <div class="blk b2"><span class="lbl">STR</span><span class="ok">checked</span></div>
-        <div class="blk b3"><span class="lbl">MEP</span><span class="ok">checked</span></div>
-        <span class="pin p1"><i></i>BCF issue</span>
-        <span class="pin p2"><i></i>BCF issue</span>
-        <span class="stamp">Approved for publication</span>
-        <span class="val-cap" id="valCap">Discipline models</span>
+        <div class="blk b1"><span class="lbl">ARC</span><span class="ok">QA passed</span></div>
+        <div class="blk b2"><span class="lbl">STR</span><span class="ok">QA passed</span></div>
+        <div class="blk b3"><span class="lbl">MEP</span><span class="ok">QA passed</span></div>
+        <span class="pin p1"><i></i>BCF · clash</span>
+        <span class="pin p2"><i></i>BCF · storey</span>
+        <span class="stamp">Shared · S4 Suitable for stage approval</span>
+        <span class="val-cap" id="valCap">Work in progress · internal QA</span>
       </div>
       <ol class="steps" id="steps">
-        <li><button type="button" aria-current="step"><span class="k">1</span><span>Each discipline validates its own model: no duplicates or clashes, standards adhered to.</span></button></li>
-        <li><button type="button"><span class="k">2</span><span>The combined model is checked for shared origin, level containment and clashes.</span></button></li>
-        <li><button type="button"><span class="k">3</span><span>Issues are communicated and resolved through BCF servers and task-team plugins.</span></button></li>
-        <li><button type="button"><span class="k">4</span><span>The steps repeat until the model is error-free, then it is approved for publication.</span></button></li>
+        <li><button type="button" aria-current="step"><span class="k">1</span><span><b>Internal QA and IFC export.</b> Each task team checks its own model against the project standards in the authoring tool, covering naming, classification, levels, duplicates and its own clashes, then exports IFC.</span></button></li>
+        <li><button type="button"><span class="k">2</span><span><b>Rule-based checking in Solibri.</b> Each IFC runs through classification and ruleset checks. The models are then federated to confirm the shared origin, storey containment and cross-discipline clashes.</span></button></li>
+        <li><button type="button"><span class="k">3</span><span><b>Issues managed in BCF.</b> Failed checks become Solibri issues synced to the BCF server. Task teams open them in BIMcollab ZOOM beside the authoring model, fix them and reply in BCF, and every fix is re-checked before the issue is closed.</span></button></li>
+        <li><button type="button"><span class="k">4</span><span><b>Shared on the CDE.</b> The loop repeats until every check passes. The model is then shared on the CDE as a new revision with suitability S4, suitable for stage approval, ready for authorisation and acceptance before it becomes Published.</span></button></li>
       </ol>
     </div>
   </div>
@@ -867,9 +877,13 @@ $('#printCv').addEventListener('click', () => print());
 
 /* validation stepper */
 const val = $('#val'), steps = [...document.querySelectorAll('#steps button')];
-const caps = ['Discipline models','Federated model, shared origin','Issues raised over BCF','Approved'];
+const caps = ['Work in progress · internal QA','Solibri · federated on shared coordinates','BIMcollab · issues open in BCF','Shared'];
+const cdeAt = ['wip','wip','wip','shared'];
+const setCde = i => val.querySelectorAll('.cde span').forEach(s => s.classList.toggle('on', s.dataset.s === cdeAt[i]));
+setCde(0);
+document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => openViewer(+b.dataset.view)));
 steps.forEach((b,i) => b.addEventListener('click', () => {
-  val.dataset.step = i + 1; $('#valCap').textContent = caps[i];
+  val.dataset.step = i + 1; $('#valCap').textContent = caps[i]; setCde(i);
   steps.forEach((x,k) => k === i ? x.setAttribute('aria-current','step') : x.removeAttribute('aria-current'));
 }));
 
