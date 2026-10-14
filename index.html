@@ -97,7 +97,11 @@ section{scroll-margin-top:64px}
 @media (max-width:700px){.sec{padding:80px 0}:root{--gutter:16px}}
 
 /* work */
+.conf{max-width:52ch;padding:20px 24px;border:1px solid var(--line);border-radius:var(--r);background:var(--tile);font-size:15px;line-height:1.55;color:var(--muted)}
+.conf b{color:var(--ink);font-weight:600}
+.filter-bar{position:sticky;top:64px;z-index:10;margin:0 calc(var(--gutter) * -1) 40px;padding:12px var(--gutter);background:color-mix(in srgb,var(--canvas) 96%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-bottom:1px solid var(--line)}
 .filters{display:flex;flex-wrap:wrap;gap:8px}
+@media (max-width:700px){.filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 calc(var(--gutter) * -1);padding:0 var(--gutter)}.filters::-webkit-scrollbar{display:none}.filters button{flex-shrink:0}.conf{padding:16px 18px}}
 .filters button{min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);font-size:15px;transition:background-color 200ms ease,color 200ms ease,border-color 200ms ease,transform 160ms var(--ease-out)}
 .filters button:active{transform:scale(.97)}
 .filters button[aria-pressed="true"]{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
@@ -403,9 +407,14 @@ dialog.show::backdrop{background:rgba(0,0,0,.45)}
     <div class="sec-head">
       <div>
         <h2 id="work-h" class="rv">Selected work</h2>
-        <p class="rv" style="--d:60ms">Hotels, towers, stadia and campuses in London, Saudi Arabia, Malta, Melbourne and Wuhan. Open any project for my role, the standards used and the original portfolio pages.</p>
+        <p class="rv" style="--d:60ms">Hotels, towers, stadia and campuses in London, Saudi Arabia, Malta, Melbourne and Wuhan, grouped by project type. Open any project for my role, the standards used and the original portfolio pages.</p>
       </div>
-      <div class="filters rv" style="--d:120ms" role="group" aria-label="Filter projects" id="filters"></div>
+      <aside class="conf" aria-label="Confidentiality note">
+        <p><b>Confidentiality note.</b> The projects shown are subject to client and practice confidentiality, so live models, clash reports and project drawings are not included. Project images are credited to the practices concerned. Workflows, coordination processes and documentation can be discussed in detail at interview.</p>
+      </aside>
+    </div>
+    <div class="filter-bar">
+      <div class="filters" role="group" aria-label="Show projects by type" id="filters"></div>
     </div>
     <div id="groups"></div>
     <noscript><p>Project details are in the <a href="Sandi_Nurpeissova_BIM_Portfolio.pdf">portfolio PDF</a>.</p></noscript>
@@ -747,6 +756,8 @@ filters.addEventListener('click', e => {
     cards.forEach((c,i) => c.style.viewTransitionName = 'c' + i);
     document.startViewTransition(apply);
   } else apply();
+  const top = groupsEl.getBoundingClientRect().top + scrollY - 64 - $('.filter-bar').offsetHeight - 8;
+  if (scrollY > top) scrollTo({top, behavior: reduce ? 'auto' : 'smooth'});
 });
 groupsEl.addEventListener('click', e => {const c = e.target.closest('.card'); if (c) openSheet(+c.dataset.i, c);});
 
@@ -774,6 +785,7 @@ function render(i){
         ${[['SD',25],['DD',10],['CD',5]].map(([s,v]) => `<div class="tol-row"><span>${s}</span><span class="tol-bar"><i style="--w:${v/25}"></i></span><span>${v} mm</span></div>`).join('')}</div>` : ''}
       <h3>Standards and tools</h3>
       <p class="tools">${p.tools.map(esc).join(' · ')}</p>
+      ${p.practice !== ACA ? `<p class="conf" style="margin-top:32px;max-width:none"><b>Confidentiality note.</b> This project is subject to client and practice confidentiality, so live models, clash reports and project drawings are not included. The image is credited to ${esc(p.practice)}. Workflows, coordination processes and documentation can be discussed in detail at interview.</p>` : ''}
       <div class="sheet-actions">
         <button class="btn btn-ghost" type="button" data-pages="${p.pages[0]}">View original ${p.pages.length > 1 ? 'pages' : 'page'} (${p.pages.length})</button>
       </div>
