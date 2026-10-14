@@ -2,6 +2,8 @@
 
 **Senior BIM Coordinator** · Luxury hospitality and residential · ISO 19650 · Revit · Navisworks · Autodesk Construction Cloud
 
+🌐 **[Visit the interactive portfolio and CV](https://sandinurpeissova99-tech.github.io/sandis-bim-portfolio/)**
+
 📄 **[Download the full portfolio as PDF](Sandi_Nurpeissova_BIM_Portfolio.pdf)**
 
 Contact: sandinurpeissova99@gmail.com · +44 (0)7462 724884 · UK based (GMT), open to fully remote work
