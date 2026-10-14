@@ -113,9 +113,14 @@ section{scroll-margin-top:64px}
 .card .mono{color:var(--muted);text-align:right}
 .card:active .ph{transform:scale(.99);transition:transform 160ms var(--ease-out)}
 @media (hover:hover) and (pointer:fine){.card:hover .open,.card:focus-visible .open{opacity:1;transform:none}.card:hover h3{color:var(--accent)}}
-@media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr);gap:40px 16px}.card{grid-column:span 1}.card .ph{aspect-ratio:1}.card.wide{grid-column:span 2}.card.wide .ph{aspect-ratio:16/10}}
-@media (max-width:560px){.grid{grid-template-columns:1fr}.card,.card.wide{grid-column:span 1}.card .ph,.card.wide .ph{aspect-ratio:988/872}.card .body{flex-direction:column;gap:4px}.card .mono{text-align:left}}
-.card[hidden]{display:none}
+@media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr);gap:40px 16px}.card{grid-column:span 1}.card .ph{aspect-ratio:1}.card.m-wide{grid-column:span 2}.card.m-wide .ph{aspect-ratio:16/10}}
+@media (max-width:560px){.grid{grid-template-columns:1fr}.card,.card.m-wide{grid-column:span 1}.card .ph,.card.m-wide .ph{aspect-ratio:988/872}.card .body{flex-direction:column;gap:4px}.card .mono{text-align:left}}
+.card[hidden],.group[hidden]{display:none}
+.group+.group{margin-top:112px}
+.group-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding-top:20px;margin-bottom:28px;border-top:1px solid var(--ink)}
+.group-head h3{font-size:clamp(24px,2.6vw,32px);font-weight:600;letter-spacing:-.02em}
+.group-head .mono{color:var(--muted)}
+@media (max-width:700px){.group+.group{margin-top:72px}}
 
 /* cv */
 .cv-top{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;margin-bottom:56px}
@@ -402,7 +407,7 @@ dialog.show::backdrop{background:rgba(0,0,0,.45)}
       </div>
       <div class="filters rv" style="--d:120ms" role="group" aria-label="Filter projects" id="filters"></div>
     </div>
-    <div class="grid" id="grid"></div>
+    <div id="groups"></div>
     <noscript><p>Project details are in the <a href="Sandi_Nurpeissova_BIM_Portfolio.pdf">portfolio PDF</a>.</p></noscript>
   </div>
 </section>
@@ -698,38 +703,52 @@ heroIdx.addEventListener('focusin', e => {const b = e.target.closest('button'); 
 heroIdx.addEventListener('click', e => {const b = e.target.closest('button'); if (b) openSheet(P.findIndex(p => p.id === b.dataset.id), b);});
 
 /* grid + filters */
-const grid = $('#grid'), filters = $('#filters');
-const groups = ['All', WEA, ZHA, ACA];
-const label = {All:'All', [WEA]:'WilkinsonEyre', [ZHA]:'Zaha Hadid', [ACA]:'Academic'};
-filters.innerHTML = groups.map((g,i) => `<button type="button" aria-pressed="${i===0}" data-g="${esc(g)}">${label[g]}<span class="n">${g==='All'?P.length:P.filter(p=>p.practice===g).length}</span></button>`).join('');
-grid.innerHTML = P.map((p,i) => `<button type="button" class="card rv" data-i="${i}" data-g="${esc(p.practice)}">
+const groupsEl = $('#groups'), filters = $('#filters');
+const TYPES = [
+  {id:'hosp',name:'Hospitality and residential',short:'Hospitality and residential',ids:['qiddiya','mercury','student']},
+  {id:'office',name:'Office and commercial',short:'Office and commercial',ids:['fenchurch','minster','collins','genzon','saturn','thavies','ucg']},
+  {id:'edu',name:'Education and research',short:'Education and research',ids:['standrews','wellcome']},
+  {id:'sport',name:'Sport and leisure',short:'Sport and leisure',ids:["lords",'sjw','arch']},
+  {id:'practice',name:'BIM practice and standards',short:'Practice',ids:['zhabip']}
+];
+filters.innerHTML = `<button type="button" aria-pressed="true" data-g="all">All<span class="n">${P.length}</span></button>` +
+  TYPES.map(t => `<button type="button" aria-pressed="false" data-g="${t.id}">${t.short}<span class="n">${t.ids.length}</span></button>`).join('');
+const card = id => {const i = P.findIndex(p => p.id === id), p = P[i]; return `<button type="button" class="card rv" data-i="${i}">
   <div class="ph"><img src="img/${p.imgs[0]}.jpg" width="988" height="872" alt="" loading="lazy" decoding="async"><span class="open">View project</span></div>
-  <div class="body"><h3>${esc(p.name)}</h3><span class="mono">${esc(p.place)}</span></div></button>`).join('');
-const cards = [...grid.children];
-const PATTERN = [[7,1.4],[5,1.0],[4,1.0],[4,1.0],[4,1.0],[5,1.0],[7,1.4],[6,1.2],[6,1.2]];
-function layout(){
-  let k = 0;
-  cards.filter(c => !c.hidden).forEach(c => {
-    const [span, ar] = PATTERN[k % PATTERN.length];
-    c.style.setProperty('--span', span); c.style.setProperty('--ar', ar);
-    c.classList.toggle('wide', span >= 7); c.style.setProperty('--d', (k % 3) * 60 + 'ms'); k++;
-  });
+  <div class="body"><h3>${esc(p.name)}</h3><span class="mono">${esc(p.place)}</span></div></button>`;};
+groupsEl.innerHTML = TYPES.map(t => `<section class="group" data-g="${t.id}" aria-labelledby="g-${t.id}">
+  <div class="group-head rv"><h3 id="g-${t.id}">${t.name}</h3><span class="mono">${t.ids.length} ${t.ids.length === 1 ? 'project' : 'projects'}</span></div>
+  <div class="grid">${t.ids.map(card).join('')}</div></section>`).join('');
+const groupEls = [...groupsEl.querySelectorAll('.group')];
+const cards = [...groupsEl.querySelectorAll('.card')];
+/* rows of 2 (7+5, alternating) or 3 (4+4+4) so every row is full */
+function spans(n){
+  const rows = []; let flip = false;
+  while (n > 0){
+    if (n === 1){rows.push([[7,1.4]]); n = 0;}
+    else if (n === 2 || n === 4){rows.push(flip ? [[5,1.0],[7,1.4]] : [[7,1.4],[5,1.0]]); flip = !flip; n -= 2;}
+    else {rows.push([[4,1.0],[4,1.0],[4,1.0]]); n -= 3;}
+  }
+  return rows.flat();
 }
-layout(); cards.forEach(watch);
+groupEls.forEach(g => {
+  const cs = [...g.querySelectorAll('.card')], sp = spans(cs.length);
+  cs.forEach((c,k) => {const [span, ar] = sp[k]; c.style.setProperty('--span', span); c.style.setProperty('--ar', ar); c.classList.toggle('m-wide', k === 0 && cs.length % 2 === 1); c.style.setProperty('--d', (k % 3) * 60 + 'ms');});
+});
+cards.forEach(watch); groupsEl.querySelectorAll('.group-head').forEach(watch);
 filters.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b || b.getAttribute('aria-pressed') === 'true') return;
   const g = b.dataset.g;
   const apply = () => {
     filters.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
-    cards.forEach(c => {c.hidden = !(g === 'All' || c.dataset.g === g); c.classList.add('in');});
-    layout();
+    groupEls.forEach(el => {const off = !(g === 'all' || el.dataset.g === g); el.hidden = off; el.querySelectorAll('.card').forEach(c => {c.hidden = off; c.classList.add('in');}); el.querySelector('.group-head').classList.add('in');});
   };
   if (document.startViewTransition && !reduce){
     cards.forEach((c,i) => c.style.viewTransitionName = 'c' + i);
     document.startViewTransition(apply);
   } else apply();
 });
-grid.addEventListener('click', e => {const c = e.target.closest('.card'); if (c) openSheet(+c.dataset.i, c);});
+groupsEl.addEventListener('click', e => {const c = e.target.closest('.card'); if (c) openSheet(+c.dataset.i, c);});
 
 /* sheet */
 const sheet = $('#sheet'), sc = $('#sheetContent'), scroll = $('#sheetScroll');
